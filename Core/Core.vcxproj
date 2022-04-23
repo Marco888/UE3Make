@@ -1,0 +1,183 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Inc\Core.h" />
+    <ClInclude Include="Inc\CoreClasses.h" />
+    <ClInclude Include="Inc\dep.h" />
+    <ClInclude Include="Inc\EngineClasses.h" />
+    <ClInclude Include="Inc\fcaseopen.h" />
+    <ClInclude Include="Inc\FCodec.h" />
+    <ClInclude Include="Inc\FConfigCacheIni.h" />
+    <ClInclude Include="Inc\FFeedbackContextAnsi.h" />
+    <ClInclude Include="Inc\FFeedbackContextWindows.h" />
+    <ClInclude Include="Inc\FFileManagerAnsi.h" />
+    <ClInclude Include="Inc\FFileManagerArc.h" />
+    <ClInclude Include="Inc\FFileManagerGeneric.h" />
+    <ClInclude Include="Inc\FFileManagerLinux.h" />
+    <ClInclude Include="Inc\FFileManagerPSX2.h" />
+    <ClInclude Include="Inc\FFileManagerPSX2CD.h" />
+    <ClInclude Include="Inc\FFileManagerWindows.h" />
+    <ClInclude Include="Inc\FMallocAnsi.h" />
+    <ClInclude Include="Inc\FMallocDebug.h" />
+    <ClInclude Include="Inc\FMallocWindows.h" />
+    <ClInclude Include="Inc\FNameDebug.h" />
+    <ClInclude Include="Inc\FOutputDeviceAnsiError.h" />
+    <ClInclude Include="Inc\FOutputDeviceFile.h" />
+    <ClInclude Include="Inc\FOutputDeviceNull.h" />
+    <ClInclude Include="Inc\FOutputDeviceStdout.h" />
+    <ClInclude Include="Inc\FOutputDeviceWindowsError.h" />
+    <ClInclude Include="Inc\FRiffChunk.h" />
+    <ClInclude Include="Inc\OpCode.h" />
+    <ClInclude Include="Inc\OSXGetMacAddress.h" />
+    <ClInclude Include="Inc\Sha.h" />
+    <ClInclude Include="Inc\UExporter.h" />
+    <ClInclude Include="Inc\UFactory.h" />
+    <ClInclude Include="Inc\UnArc.h" />
+    <ClInclude Include="Inc\UnBits.h" />
+    <ClInclude Include="Inc\UnBuild.h" />
+    <ClInclude Include="Inc\UnCache.h" />
+    <ClInclude Include="Inc\UnCId.h" />
+    <ClInclude Include="Inc\UnClass.h" />
+    <ClInclude Include="Inc\UnCoreNative.h" />
+    <ClInclude Include="Inc\UnCoreNet.h" />
+    <ClInclude Include="Inc\UnCorObj.h" />
+    <ClInclude Include="Inc\UnFile.h" />
+    <ClInclude Include="Inc\UnFileCache.h" />
+    <ClInclude Include="Inc\UnGnuG.h" />
+    <ClInclude Include="Inc\UnHook.h" />
+    <ClInclude Include="Inc\UnLinker.h" />
+    <ClInclude Include="Inc\UnMath.h" />
+    <ClInclude Include="Inc\UnMD5.h" />
+    <ClInclude Include="Inc\UnMem.h" />
+    <ClInclude Include="Inc\UnMsg.h" />
+    <ClInclude Include="Inc\UnName.h" />
+    <ClInclude Include="Inc\UnNames.h" />
+    <ClInclude Include="Inc\UnObjBas.h" />
+    <ClInclude Include="Inc\UnObjVer.h" />
+    <ClInclude Include="Inc\UnScript.h" />
+    <ClInclude Include="Inc\UnStack.h" />
+    <ClInclude Include="Inc\UnTemplate.h" />
+    <ClInclude Include="Inc\UnType.h" />
+    <ClInclude Include="Inc\UnUnix.h" />
+    <ClInclude Include="Inc\UnVcWin32.h" />
+    <ClInclude Include="Inc\win32_exception.h" />
+    <ClInclude Include="Src\CorePrivate.h" />
+    <ClInclude Include="Src\debug.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Src\Core.cpp" />
+    <ClCompile Include="Src\EngineClasses.cpp" />
+    <ClCompile Include="Src\UExporter.cpp" />
+    <ClCompile Include="Src\UFactory.cpp" />
+    <ClCompile Include="Src\UnAnsi.cpp" />
+    <ClCompile Include="Src\UnBits.cpp" />
+    <ClCompile Include="Src\UnCache.cpp" />
+    <ClCompile Include="Src\UnClass.cpp" />
+    <ClCompile Include="Src\UnComponent.cpp" />
+    <ClCompile Include="Src\UnCoreNative.cpp" />
+    <ClCompile Include="Src\UnCoreNet.cpp" />
+    <ClCompile Include="Src\UnCorSc.cpp" />
+    <ClCompile Include="Src\UnDebugCPUClock.cpp" />
+    <ClCompile Include="Src\UnDebugLog.cpp" />
+    <ClCompile Include="Src\UnGarbage.cpp" />
+    <ClCompile Include="Src\UnHook.cpp" />
+    <ClCompile Include="Src\UnLinker.cpp" />
+    <ClCompile Include="Src\UnLocale.cpp" />
+    <ClCompile Include="Src\UnMath.cpp" />
+    <ClCompile Include="Src\UnMD5.cpp" />
+    <ClCompile Include="Src\UnMem.cpp" />
+    <ClCompile Include="Src\UnMisc.cpp" />
+    <ClCompile Include="Src\UnName.cpp" />
+    <ClCompile Include="Src\UnObj.cpp" />
+    <ClCompile Include="Src\UnProp.cpp" />
+    <ClCompile Include="Src\UnVcWin32.cpp" />
+    <ClCompile Include="Src\win32_exception.cpp" />
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{2C202A46-D978-4647-B256-8EF2B89D7A40}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>Core</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+    <EnableASAN>true</EnableASAN>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v142</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup />
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level1</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>Inc;Inc\Licensee;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+    <Lib>
+      <OutputFile>Lib\$(TargetName)$(TargetExt)</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level1</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>Inc;Inc\Licensee;dxsdk\Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ExceptionHandling>Async</ExceptionHandling>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+    <Lib>
+      <OutputFile>Lib\$(TargetName)$(TargetExt)</OutputFile>
+    </Lib>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
