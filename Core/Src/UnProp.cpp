@@ -28,6 +28,20 @@ static INT HexDigit(TCHAR c)
 		return 0;
 }
 
+/**
+ * Advances the character pointer past any spaces or tabs.
+ *
+ * @param	Str		the buffer to remove whitespace from
+ */
+
+static void SkipWhitespace(const TCHAR*& Str)
+{
+	while (Str && appIsWhitespace(*Str))
+	{
+		Str++;
+	}
+}
+
 //
 // Parse a token.
 //
@@ -127,7 +141,7 @@ static const TCHAR* ReadNameToken(const TCHAR* Context, const TCHAR* Buffer, FSt
 			++Buffer;
 		}
 
-		Buffer = Fin+1;
+		Buffer = Fin + 1;
 		String = FString(Start, Buffer);
 	}
 	else
@@ -156,7 +170,7 @@ UProperty::UProperty()
 UProperty::UProperty(ECppProperty, INT InOffset, const TCHAR* InCategory, DWORD InFlags)
 	: ArrayDim(1)
 	, PropertyFlags(InFlags)
-    , Offset(InOffset)
+	, Offset(InOffset)
 	, Category(InCategory)
 	, TempPropertyFlags(0)
 	, ArraySizeEnum(NULL)
@@ -205,8 +219,8 @@ void UProperty::ExportCpp(FOutputDevice& Out, UBOOL IsLocal, UBOOL IsParm) const
 		TCHAR ArrayStr[256] = TEXT("");
 	if
 		(IsParm
-		&&	IsA(UStrProperty::StaticClass())
-		&& !(PropertyFlags & CPF_OutParm))
+			&& IsA(UStrProperty::StaticClass())
+			&& !(PropertyFlags & CPF_OutParm))
 		Out.Log(TEXT("const "));
 	ExportCppItem(Out);
 	if (ArrayDim != 1)
@@ -222,7 +236,7 @@ void UProperty::ExportCpp(FOutputDevice& Out, UBOOL IsLocal, UBOOL IsParm) const
 	}
 	else if (IsA(UStrProperty::StaticClass()))
 	{
-		if (IsParm && ArrayDim>1)
+		if (IsParm && ArrayDim > 1)
 			Out.Logf(TEXT("* %ls"), GetName());
 		else if (IsParm)
 			Out.Logf(TEXT("& %ls"), GetName());
@@ -233,7 +247,7 @@ void UProperty::ExportCpp(FOutputDevice& Out, UBOOL IsLocal, UBOOL IsParm) const
 	}
 	else
 	{
-		if (IsParm && ArrayDim>1)
+		if (IsParm && ArrayDim > 1)
 			Out.Logf(TEXT("* %ls"), GetName());
 		else if (IsParm && (PropertyFlags & CPF_OutParm))
 			Out.Logf(TEXT("& %ls%ls"), GetName(), ArrayStr);
@@ -248,11 +262,11 @@ void UProperty::ExportCpp(FOutputDevice& Out, UBOOL IsLocal, UBOOL IsParm) const
 //
 UBOOL UProperty::ExportText
 (
-INT		Index,
-FString& ValueStr,
-BYTE*	Data,
-BYTE*	Delta,
-INT		PortFlags
+	INT		Index,
+	FString& ValueStr,
+	BYTE* Data,
+	BYTE* Delta,
+	INT		PortFlags
 ) const
 {
 	ValueStr.Empty();
@@ -260,12 +274,12 @@ INT		PortFlags
 	if (Data == Delta || !Matches(Data, Delta, Index))
 	{
 		ExportTextItem
-			(
+		(
 			ValueStr,
 			Data + Offset + Index * ElementSize,
 			Delta ? (Delta + Offset + Index * ElementSize) : NULL,
 			PortFlags
-			);
+		);
 		return 1;
 	}
 	else return 0;
@@ -312,8 +326,8 @@ UBOOL UProperty::Port() const
 {
 	return
 		(GetSize()
-		&& (Category != NAME_None || !(PropertyFlags & (CPF_Transient | CPF_Native)))
-		&& GetFName() != NAME_Class);
+			&& (Category != NAME_None || !(PropertyFlags & (CPF_Transient | CPF_Native)))
+			&& GetFName() != NAME_Class);
 }
 
 //
@@ -330,8 +344,8 @@ FName UProperty::GetID() const
 void UProperty::CopyCompleteValue(void* Dest, void* Src, UObject* Obj) const
 {
 	guardSlow(UProperty::CopyCompleteValue);
-	for (INT i = 0; i<ArrayDim; i++)
-		CopySingleValue((BYTE*)Dest + i*ElementSize, (BYTE*)Src + i*ElementSize);
+	for (INT i = 0; i < ArrayDim; i++)
+		CopySingleValue((BYTE*)Dest + i * ElementSize, (BYTE*)Src + i * ElementSize);
 	unguardobjSlow;
 }
 
@@ -361,7 +375,7 @@ UBOOL UStructProperty::IsLocalized() const
 {
 	// prevent recursion in the case of structs containing dynamic arrays of themselves
 	static TArray<const UStructProperty*> EncounteredStructProps;
-	if (EncounteredStructProps.FindItemIndex(this)>=0)
+	if (EncounteredStructProps.FindItemIndex(this) >= 0)
 	{
 		return Super::IsLocalized();
 	}
@@ -392,7 +406,7 @@ UBOOL UArrayProperty::ContainsInstancedObjectProperty() const
 UBOOL UStructProperty::ContainsInstancedObjectProperty() const
 {
 	check(Struct);
-	for(TFieldIterator<UProperty> It(Struct); It; ++It)
+	for (TFieldIterator<UProperty> It(Struct); It; ++It)
 		if (It->ContainsInstancedObjectProperty())
 			return TRUE;
 	return FALSE;
@@ -403,13 +417,13 @@ IMPLEMENT_CLASS(UProperty);
 UByteProperty.
 -----------------------------------------------------------------------------*/
 
-void UByteProperty::Link( FArchive& Ar, UProperty* Prev )
+void UByteProperty::Link(FArchive& Ar, UProperty* Prev)
 {
 	guard(UByteProperty::Link);
-	Super::Link( Ar, Prev );
-	ElementSize   = sizeof(BYTE);
+	Super::Link(Ar, Prev);
+	ElementSize = sizeof(BYTE);
 	LinkAlignment = alignof(BYTE);
-	Offset        = Align( GetOuterUField()->GetPropertiesSize(), LinkAlignment );
+	Offset = Align(GetOuterUField()->GetPropertiesSize(), LinkAlignment);
 	unguardobj;
 }
 void UByteProperty::CopySingleValue(void* Dest, void* Src) const
@@ -524,7 +538,7 @@ const TCHAR* UByteProperty::ImportText(const TCHAR* Buffer, BYTE* Data, INT Port
 		if (appIsDigit(*Buffer))
 		{
 			INT Res = appAtoi(Buffer);
-			if (Res >= 0 && Res<Enum->Names.Num())
+			if (Res >= 0 && Res < Enum->Names.Num())
 			{
 				*(BYTE*)Data = Res;
 				while (appIsDigit(*Buffer))
@@ -682,11 +696,11 @@ UBOOL UEnum::GenerateMaxEnum()
 UIntProperty.
 -----------------------------------------------------------------------------*/
 
-void UIntProperty::Link( FArchive& Ar, UProperty* Prev )
+void UIntProperty::Link(FArchive& Ar, UProperty* Prev)
 {
 	guard(UIntProperty::Link);
-	Super::Link( Ar, Prev );
-	ElementSize   = sizeof(INT);
+	Super::Link(Ar, Prev);
+	ElementSize = sizeof(INT);
 
 	// stijn: (hopefully) temporary hack to deal with Engine.Bitmap.InternalTime.
 	// This property is kind of unique in UEngine because it is mirrored as an
@@ -699,8 +713,8 @@ void UIntProperty::Link( FArchive& Ar, UProperty* Prev )
 		LinkAlignment = alignof(FTime);
 	else
 #endif
-	LinkAlignment = alignof(INT);
-	Offset        = Align( GetOuterUField()->GetPropertiesSize(), LinkAlignment );
+		LinkAlignment = alignof(INT);
+	Offset = Align(GetOuterUField()->GetPropertiesSize(), LinkAlignment);
 	unguardobj;
 }
 void UIntProperty::CopySingleValue(void* Dest, void* Src) const
@@ -717,7 +731,7 @@ void UIntProperty::CopyCompleteValue(void* Dest, void* Src, UObject* Obj) const
 	guardSlow(UIntProperty::CopyCompleteValue);
 	if (ArrayDim == 1)
 		*(INT*)Dest = *(INT*)Src;
-	else appMemcpy(Dest, Src, sizeof(INT)*ArrayDim);
+	else appMemcpy(Dest, Src, sizeof(INT) * ArrayDim);
 	unguardSlow;
 }
 UBOOL UIntProperty::Identical(const void* A, const void* B) const
@@ -762,7 +776,7 @@ void UIntProperty::ExportTextItem(FString& ValueStr, BYTE* PropertyValue, BYTE* 
 			ValueStr += FString::Printf(TEXT("%.2f\xB0"), (*(INT*)PropertyValue * (360.0 / 65536.0)));
 		else ValueStr += FString::Printf(TEXT("%.2f"), (*(INT*)PropertyValue * (360.0 / 65536.0)));
 	}
-	else ValueStr += FString::Printf(TEXT("%i"), *(INT *)PropertyValue);
+	else ValueStr += FString::Printf(TEXT("%i"), *(INT*)PropertyValue);
 	unguardobj;
 }
 //
@@ -775,7 +789,7 @@ void UIntProperty::ExportTextItem(FString& ValueStr, BYTE* PropertyValue, BYTE* 
 // Issues:
 //  * Should leading tabs and spaces be accepted like appAtoi does?
 //
-const TCHAR* UIntProperty::ImportText( const TCHAR* Buffer, BYTE* Data, INT PortFlags ) const
+const TCHAR* UIntProperty::ImportText(const TCHAR* Buffer, BYTE* Data, INT PortFlags) const
 {
 	guard(UIntProperty::ImportText);
 	if ((PortFlags & PPF_ExecImport) && _ImportObject)
@@ -852,8 +866,8 @@ void UBoolProperty::ExportTextItem(FString& ValueStr, BYTE* PropertyValue, BYTE*
 	guard(UBoolProperty::ExportTextItem);
 	TCHAR* Temp
 		= (TCHAR*)((PortFlags & PPF_Localized)
-		? (((*(BITFIELD*)PropertyValue) & BitMask) ? GTrue : GFalse)
-		: (((*(BITFIELD*)PropertyValue) & BitMask) ? TEXT("True") : TEXT("False")));
+			? (((*(BITFIELD*)PropertyValue) & BitMask) ? GTrue : GFalse)
+			: (((*(BITFIELD*)PropertyValue) & BitMask) ? TEXT("True") : TEXT("False")));
 	ValueStr += FString::Printf(TEXT("%ls"), Temp);
 	unguardobj;
 }
@@ -926,13 +940,13 @@ IMPLEMENT_CLASS(UBoolProperty);
 UFloatProperty.
 -----------------------------------------------------------------------------*/
 
-void UFloatProperty::Link( FArchive& Ar, UProperty* Prev )
+void UFloatProperty::Link(FArchive& Ar, UProperty* Prev)
 {
 	guard(UFloatProperty::Link);
-	Super::Link( Ar, Prev );
-	ElementSize   = sizeof(FLOAT);
+	Super::Link(Ar, Prev);
+	ElementSize = sizeof(FLOAT);
 	LinkAlignment = alignof(FLOAT);
-	Offset        = Align( GetOuterUField()->GetPropertiesSize(), LinkAlignment );
+	Offset = Align(GetOuterUField()->GetPropertiesSize(), LinkAlignment);
 	unguardobj;
 }
 void UFloatProperty::CopySingleValue(void* Dest, void* Src) const
@@ -949,7 +963,7 @@ void UFloatProperty::CopyCompleteValue(void* Dest, void* Src, UObject* Obj) cons
 	guardSlow(UFloatProperty::CopyCompleteValue);
 	if (ArrayDim == 1)
 		*(FLOAT*)Dest = *(FLOAT*)Src;
-	else appMemcpy(Dest, Src, sizeof(FLOAT)*ArrayDim);
+	else appMemcpy(Dest, Src, sizeof(FLOAT) * ArrayDim);
 	unguardSlow;
 }
 UBOOL UFloatProperty::Identical(const void* A, const void* B) const
@@ -1049,7 +1063,7 @@ void UObjectProperty::Link(FArchive& Ar, UProperty* Prev)
 	Super::Link(Ar, Prev);
 	ElementSize = sizeof(UObject*);
 	LinkAlignment = alignof(UObject*);
-	Offset        = Align(GetOuterUField()->GetPropertiesSize(), LinkAlignment);
+	Offset = Align(GetOuterUField()->GetPropertiesSize(), LinkAlignment);
 	unguardobj;
 }
 void UObjectProperty::CopySingleValue(void* Dest, void* Src) const
@@ -1063,7 +1077,7 @@ void UObjectProperty::CopyCompleteValue(void* Dest, void* Src, UObject* Obj) con
 	guardSlow(UObjectProperty::CopyCompleteValue);
 	if ((PropertyFlags & CPF_NeedCtorLink) && Obj && !(GUglyHackFlags & HACK_DisableSubobjectInstancing))
 	{
-		for (INT i = 0; i<ArrayDim; i++)
+		for (INT i = 0; i < ArrayDim; i++)
 		{
 			UObject* Source = ((UObject**)Src)[i];
 			((UObject**)Dest)[i] = (Source ? StaticConstructObject(Source->GetClass(), Obj->GetOuter(), NAME_None, 0, Source) : NULL);
@@ -1071,7 +1085,7 @@ void UObjectProperty::CopyCompleteValue(void* Dest, void* Src, UObject* Obj) con
 	}
 	else
 	{
-		for (INT i = 0; i<ArrayDim; i++)
+		for (INT i = 0; i < ArrayDim; i++)
 			((UObject**)Dest)[i] = ((UObject**)Src)[i];
 	}
 	unguardSlow;
@@ -1121,7 +1135,7 @@ void UObjectProperty::ExportUScriptName(FOutputDevice& Out) const
 void UObjectProperty::ExportTextItem(FString& ValueStr, BYTE* PropertyValue, BYTE* DefaultValue, INT PortFlags) const
 {
 	guard(UObjectProperty::ExportTextItem);
-	UObject* Temp = *(UObject **)PropertyValue;
+	UObject* Temp = *(UObject**)PropertyValue;
 	if (Temp != NULL && Temp->IsValid())
 		ValueStr += FString::Printf(TEXT("%ls'%ls'"), Temp->GetClass()->GetName(), Temp->GetPathName());
 	else
@@ -1474,7 +1488,7 @@ UBOOL UClassProperty::NetSerializeItem(FArchive& Ar, UPackageMap* Map, void* Dat
 void UClassProperty::ExportUScriptName(FOutputDevice& Out) const
 {
 	guard(UClassProperty::ExportUScriptName);
-	if(!MetaClass || MetaClass==UObject::StaticClass())
+	if (!MetaClass || MetaClass == UObject::StaticClass())
 		Out.Log(TEXT("Class"));
 	else Out.Logf(TEXT("Class<%ls>"), MetaClass->GetName());
 	unguardobj;
@@ -1485,13 +1499,13 @@ IMPLEMENT_CLASS(UClassProperty);
 UNameProperty.
 -----------------------------------------------------------------------------*/
 
-void UNameProperty::Link( FArchive& Ar, UProperty* Prev )
+void UNameProperty::Link(FArchive& Ar, UProperty* Prev)
 {
 	guard(UNameProperty::Link);
-	Super::Link( Ar, Prev );
-	ElementSize   = sizeof(FName);
+	Super::Link(Ar, Prev);
+	ElementSize = sizeof(FName);
 	LinkAlignment = alignof(FName);
-	Offset        = Align( GetOuterUField()->GetPropertiesSize(), LinkAlignment );
+	Offset = Align(GetOuterUField()->GetPropertiesSize(), LinkAlignment);
 	unguardobj;
 }
 void UNameProperty::CopySingleValue(void* Dest, void* Src) const
@@ -1505,7 +1519,7 @@ void UNameProperty::CopyCompleteValue(void* Dest, void* Src, UObject* Obj) const
 	guardSlow(UNameProperty::CopyCompleteValue);
 	if (ArrayDim == 1)
 		*(FName*)Dest = *(FName*)Src;
-	else appMemcpy(Dest, Src, sizeof(FName)*ArrayDim);
+	else appMemcpy(Dest, Src, sizeof(FName) * ArrayDim);
 	unguardSlow;
 }
 UBOOL UNameProperty::Identical(const void* A, const void* B) const
@@ -1566,14 +1580,14 @@ IMPLEMENT_CLASS(UNameProperty);
 UStrProperty.
 -----------------------------------------------------------------------------*/
 
-void UStrProperty::Link( FArchive& Ar, UProperty* Prev )
+void UStrProperty::Link(FArchive& Ar, UProperty* Prev)
 {
 	guard(UStrProperty::Link);
-	Super::Link( Ar, Prev );
-	ElementSize    = sizeof(FString);
-	LinkAlignment  = alignof(FString);
-	Offset         = Align(GetOuterUField()->GetPropertiesSize(), LinkAlignment);
-	if( !(PropertyFlags & CPF_Native) )
+	Super::Link(Ar, Prev);
+	ElementSize = sizeof(FString);
+	LinkAlignment = alignof(FString);
+	Offset = Align(GetOuterUField()->GetPropertiesSize(), LinkAlignment);
+	if (!(PropertyFlags & CPF_Native))
 		PropertyFlags |= CPF_NeedCtorLink;
 	unguardobj;
 }
@@ -1609,7 +1623,7 @@ void UStrProperty::ExportUScriptName(FOutputDevice& Out) const
 }
 inline TCHAR PortChar(DWORD In)
 {
-	if (In<10)
+	if (In < 10)
 		return '0' + In;
 	else return 'A' + (In - 10);
 }
@@ -1773,7 +1787,7 @@ void UStrProperty::CopySingleValue(void* Dest, void* Src) const
 void UStrProperty::DestroyValue(void* Dest) const
 {
 	guardSlow(UStrProperty::DestroyValue);
-	for (INT i = 0; i<ArrayDim; i++)
+	for (INT i = 0; i < ArrayDim; i++)
 	{
 		// stijn: The original code called the FString destructor here, but then
 		// continued to use the destroyed FString object.  This worked in 1999
@@ -1785,7 +1799,7 @@ void UStrProperty::DestroyValue(void* Dest) const
 		// throw out the reinitialization operations that happen within
 		// destructors. This is a reasonable optimization since it is not legal
 		// to keep using a destroyed C++ object anyway.		
-		(*(FString*)((BYTE*)Dest + i*ElementSize)).Empty();
+		(*(FString*)((BYTE*)Dest + i * ElementSize)).Empty();
 	}
 	unguardobjSlow;
 }
@@ -1802,17 +1816,17 @@ IMPLEMENT_CLASS(UStrProperty);
 UFixedArrayProperty.
 -----------------------------------------------------------------------------*/
 
-void UFixedArrayProperty::Link( FArchive& Ar, UProperty* Prev )
+void UFixedArrayProperty::Link(FArchive& Ar, UProperty* Prev)
 {
 	guard(UFixedArrayProperty::Link);
-	checkSlow(Count>0);
-	Super::Link( Ar, Prev );
-	Ar.Preload( Inner );
-	Inner->Link( Ar, NULL );
-	ElementSize   = Inner->ElementSize * Count;
+	checkSlow(Count > 0);
+	Super::Link(Ar, Prev);
+	Ar.Preload(Inner);
+	Inner->Link(Ar, NULL);
+	ElementSize = Inner->ElementSize * Count;
 	LinkAlignment = Inner->LinkAlignment;
-	Offset        = Align(GetOuterUField()->GetPropertiesSize(), LinkAlignment);
-	if( !(PropertyFlags & CPF_Native) )
+	Offset = Align(GetOuterUField()->GetPropertiesSize(), LinkAlignment);
+	if (!(PropertyFlags & CPF_Native))
 		PropertyFlags |= (Inner->PropertyFlags & CPF_NeedCtorLink);
 	unguardobj;
 }
@@ -1820,8 +1834,8 @@ UBOOL UFixedArrayProperty::Identical(const void* A, const void* B) const
 {
 	guardSlow(UFixedArrayProperty::Identical);
 	checkSlow(Inner);
-	for (INT i = 0; i<Count; i++)
-		if (!Inner->Identical((BYTE*)A + i*Inner->ElementSize, B ? ((BYTE*)B + i*Inner->ElementSize) : NULL))
+	for (INT i = 0; i < Count; i++)
+		if (!Inner->Identical((BYTE*)A + i * Inner->ElementSize, B ? ((BYTE*)B + i * Inner->ElementSize) : NULL))
 			return 0;
 	return 1;
 	unguardobjSlow;
@@ -1830,8 +1844,8 @@ void UFixedArrayProperty::SerializeItem(FArchive& Ar, void* Value) const
 {
 	guardSlow(UFixedArrayProperty::SerializeItem);
 	checkSlow(Inner);
-	for (INT i = 0; i<Count; i++)
-		Inner->SerializeItem(Ar, (BYTE*)Value + i*Inner->ElementSize);
+	for (INT i = 0; i < Count; i++)
+		Inner->SerializeItem(Ar, (BYTE*)Value + i * Inner->ElementSize);
 	unguardobjSlow;
 }
 UBOOL UFixedArrayProperty::NetSerializeItem(FArchive& Ar, UPackageMap* Map, void* Data) const
@@ -1861,11 +1875,11 @@ void UFixedArrayProperty::ExportTextItem(FString& ValueStr, BYTE* PropertyValue,
 	guard(UFixedArrayProperty::ExportTextItem);
 	checkSlow(Inner);
 	ValueStr += TEXT("(");
-	for (INT i = 0; i<Count; i++)
+	for (INT i = 0; i < Count; i++)
 	{
-		if (i>0)
+		if (i > 0)
 			ValueStr += TEXT(",");
-		Inner->ExportTextItem(ValueStr, PropertyValue + i*Inner->ElementSize, DefaultValue ? (DefaultValue + i*Inner->ElementSize) : NULL, PortFlags | PPF_Delimited);
+		Inner->ExportTextItem(ValueStr, PropertyValue + i * Inner->ElementSize, DefaultValue ? (DefaultValue + i * Inner->ElementSize) : NULL, PortFlags | PPF_Delimited);
 	}
 	ValueStr += TEXT(")");
 	unguardobj;
@@ -1877,9 +1891,9 @@ const TCHAR* UFixedArrayProperty::ImportText(const TCHAR* Buffer, BYTE* Data, IN
 	if (*Buffer++ != '(')
 		return NULL;
 	appMemzero(Data, ElementSize);
-	for (INT i = 0; i<Count; i++)
+	for (INT i = 0; i < Count; i++)
 	{
-		Buffer = Inner->ImportText(Buffer, Data + i*Inner->ElementSize, PortFlags | PPF_Delimited);
+		Buffer = Inner->ImportText(Buffer, Data + i * Inner->ElementSize, PortFlags | PPF_Delimited);
 		if (!Buffer)
 			return NULL;
 		if (*Buffer != ',' && i != Count - 1)
@@ -1896,7 +1910,7 @@ void UFixedArrayProperty::AddCppProperty(UProperty* Property, INT InCount)
 	guard(UFixedArrayProperty::AddCppProperty);
 	check(!Inner);
 	check(Property);
-	check(InCount>0);
+	check(InCount > 0);
 
 	Inner = Property;
 	Count = InCount;
@@ -1906,15 +1920,15 @@ void UFixedArrayProperty::AddCppProperty(UProperty* Property, INT InCount)
 void UFixedArrayProperty::CopySingleValue(void* Dest, void* Src) const
 {
 	guardSlow(UFixedArrayProperty::CopySingleValue);
-	for (INT i = 0; i<Count; i++)
-		Inner->CopyCompleteValue((BYTE*)Dest + i*Inner->ElementSize, Src ? ((BYTE*)Src + i*Inner->ElementSize) : NULL);
+	for (INT i = 0; i < Count; i++)
+		Inner->CopyCompleteValue((BYTE*)Dest + i * Inner->ElementSize, Src ? ((BYTE*)Src + i * Inner->ElementSize) : NULL);
 	unguardobjSlow;
 }
 void UFixedArrayProperty::DestroyValue(void* Dest) const
 {
 	guardSlow(UFixedArrayProperty::DestroyValue);
-	for (INT i = 0; i<Count; i++)
-		Inner->DestroyValue((BYTE*)Dest + i*Inner->ElementSize);
+	for (INT i = 0; i < Count; i++)
+		Inner->DestroyValue((BYTE*)Dest + i * Inner->ElementSize);
 	unguardobjSlow;
 }
 IMPLEMENT_CLASS(UFixedArrayProperty);
@@ -1923,16 +1937,16 @@ IMPLEMENT_CLASS(UFixedArrayProperty);
 UArrayProperty.
 -----------------------------------------------------------------------------*/
 
-void UArrayProperty::Link( FArchive& Ar, UProperty* Prev )
+void UArrayProperty::Link(FArchive& Ar, UProperty* Prev)
 {
 	guard(UArrayProperty::Link);
-	Super::Link( Ar, Prev );
-	Ar.Preload( Inner );
-	Inner->Link( Ar, NULL );
-	ElementSize    = sizeof(FArray);
-	LinkAlignment  = alignof(FArray);
-	Offset         = Align(GetOuterUField()->GetPropertiesSize(), LinkAlignment);
-	if( !(PropertyFlags & CPF_Native) )
+	Super::Link(Ar, Prev);
+	Ar.Preload(Inner);
+	Inner->Link(Ar, NULL);
+	ElementSize = sizeof(FArray);
+	LinkAlignment = alignof(FArray);
+	Offset = Align(GetOuterUField()->GetPropertiesSize(), LinkAlignment);
+	if (!(PropertyFlags & CPF_Native))
 		PropertyFlags |= CPF_NeedCtorLink;
 	unguardobj;
 }
@@ -1948,14 +1962,14 @@ UBOOL UArrayProperty::Identical(const void* A, const void* B) const
 	if (B)
 	{
 		BYTE* q = (BYTE*)((FArray*)B)->GetData();
-		for (INT i = 0; i<n; i++)
-			if (!Inner->Identical(p + i*c, q + i*c))
+		for (INT i = 0; i < n; i++)
+			if (!Inner->Identical(p + i * c, q + i * c))
 				return 0;
 	}
 	else
 	{
-		for (INT i = 0; i<n; i++)
-			if (!Inner->Identical(p + i*c, 0))
+		for (INT i = 0; i < n; i++)
+			if (!Inner->Identical(p + i * c, 0))
 				return 0;
 	}
 	return 1;
@@ -1982,8 +1996,8 @@ void UArrayProperty::SerializeItem(FArchive& Ar, void* Value) const
 	}
 	BYTE* p = (BYTE*)FArr->GetData();
 	FArr->CountBytes(Ar, c);
-	for (INT i = 0; i<n; i++)
-		Inner->SerializeItem(Ar, p + i*c);
+	for (INT i = 0; i < n; i++)
+		Inner->SerializeItem(Ar, p + i * c);
 	unguardobjSlow;
 }
 UBOOL UArrayProperty::NetSerializeItem(FArchive& Ar, UPackageMap* Map, void* Data) const
@@ -1994,22 +2008,22 @@ UBOOL UArrayProperty::NetSerializeItem(FArchive& Ar, UPackageMap* Map, void* Dat
 	Ar.SerializeBits(&Len, 9);
 	if (Ar.IsLoading())
 	{
-		if (Len>Array->Num())
+		if (Len > Array->Num())
 			Array->AddZeroed(c, Len - Array->Num());
-		else if (Len<Array->Num())
+		else if (Len < Array->Num())
 		{
 			if (Inner->PropertyFlags & CPF_NeedCtorLink)
 			{
 				BYTE* DestData = (BYTE*)Array->GetData();
 				for (INT i = (Array->Num() - 1); i >= Len; --i)
-					Inner->DestroyValue(DestData + (i*c));
+					Inner->DestroyValue(DestData + (i * c));
 			}
 			Array->Remove(Len, Array->Num() - Len, c);
 		}
 	}
 	BYTE* DestData = (BYTE*)Array->GetData();
-	for (INT i = 0; i<Len; ++i)
-		Inner->NetSerializeItem(Ar, Map, DestData + (i*c));
+	for (INT i = 0; i < Len; ++i)
+		Inner->NetSerializeItem(Ar, Map, DestData + (i * c));
 	return 1;
 }
 void UArrayProperty::Serialize(FArchive& Ar)
@@ -2032,9 +2046,9 @@ void UArrayProperty::ExportCppItem(FOutputDevice& Out) const
 void UArrayProperty::ExportCpp(FOutputDevice& Out, UBOOL IsLocal, UBOOL IsParm) const
 {
 	guard(UArrayProperty::ExportCpp)
-	if (IsParm || IsLocal)
-		Out.Log(TEXT("TArray<"));
-	else Out.Log(TEXT("TArrayNoInit<"));
+		if (IsParm || IsLocal)
+			Out.Log(TEXT("TArray<"));
+		else Out.Log(TEXT("TArrayNoInit<"));
 	Inner->ExportCppItem(Out);
 	Out.Log(TEXT(">"));
 
@@ -2058,9 +2072,9 @@ void UArrayProperty::ExportTextItem(FString& ValueStr, BYTE* PropertyValue, BYTE
 	ValueStr += TEXT("(");
 	FArray* Array = (FArray*)PropertyValue;
 	INT     ElementSize = Inner->ElementSize;
-	for (INT i = 0; i<Array->Num(); i++)
+	for (INT i = 0; i < Array->Num(); i++)
 	{
-		if (i>0)
+		if (i > 0)
 			ValueStr += TEXT(",");
 		Inner->ExportTextItem(ValueStr, (BYTE*)Array->GetData() + i * ElementSize, NULL, PortFlags | PPF_Delimited);
 	}
@@ -2084,8 +2098,8 @@ const TCHAR* UArrayProperty::ImportText(const TCHAR* Buffer, BYTE* Data, INT Por
 		while (*Buffer == ' ')
 			++Buffer;
 		INT Index = Array->Add(1, ElementSize);
-		appMemzero((BYTE*)Array->GetData() + Index*ElementSize, ElementSize);
-		const TCHAR* Result = Inner->ImportText(Buffer, (BYTE*)Array->GetData() + Index*ElementSize, PortFlags | PPF_Delimited);
+		appMemzero((BYTE*)Array->GetData() + Index * ElementSize, ElementSize);
+		const TCHAR* Result = Inner->ImportText(Buffer, (BYTE*)Array->GetData() + Index * ElementSize, PortFlags | PPF_Delimited);
 		if (!Result)
 		{
 			FStringOutputDevice SOut;
@@ -2132,8 +2146,8 @@ void UArrayProperty::CopyCompleteValue(void* Dest, void* Src, UObject* Obj) cons
 	{
 		BYTE* DestData = (BYTE*)DestArray->GetData();
 		INT i = 0;
-		for (i = 0; i<DestArray->Num(); i++)
-			Inner->DestroyValue(DestData + i*Size);
+		for (i = 0; i < DestArray->Num(); i++)
+			Inner->DestroyValue(DestData + i * Size);
 		DestArray->Empty(Size, SrcArray->Num());
 
 		// Copy all the elements.
@@ -2157,7 +2171,7 @@ void UArrayProperty::CopyCompleteValue(void* Dest, void* Src, UObject* Obj) cons
 
 		// Copy all the elements.
 		DestArray->Add(SrcArray->Num(), Size);
-		appMemcpy(DestArray->GetData(), SrcArray->GetData(), SrcArray->Num()*Size);
+		appMemcpy(DestArray->GetData(), SrcArray->GetData(), SrcArray->Num() * Size);
 	}
 	unguardobj;
 }
@@ -2169,9 +2183,10 @@ void UArrayProperty::DestroyValue(void* Dest) const
 	{
 		BYTE* DestData = (BYTE*)DestArray->GetData();
 		INT   Size = Inner->ElementSize;
-		for (INT i = 0; i<DestArray->Num(); i++)
-			Inner->DestroyValue(DestData + i*Size);
-	}	
+		for (INT i = 0; i < DestArray->Num(); i++)
+			Inner->DestroyValue(DestData + i * Size);
+	}
+
 	// stijn: was a ~FArray() call originally. See note in
 	// UStrProperty::DestroyValue to see why this was changed.
 	DestArray->EmptyFArray(GetName());
@@ -2183,10 +2198,10 @@ IMPLEMENT_CLASS(UArrayProperty);
 UMapProperty.
 -----------------------------------------------------------------------------*/
 
-void UMapProperty::Link( FArchive& Ar, UProperty* Prev )
+void UMapProperty::Link(FArchive& Ar, UProperty* Prev)
 {
 	guard(UMapProperty::Link);
-	Super::Link( Ar, Prev );
+	Super::Link(Ar, Prev);
 	ElementSize = sizeof(TMap<BYTE, BYTE>);
 	LinkAlignment = alignof(TMap<BYTE, BYTE>);
 	Offset = Align(GetOuterUField()->GetPropertiesSize(), LinkAlignment);
@@ -2275,7 +2290,7 @@ static INT GetPropAlignment(UProperty* Prop, UProperty* ExcludeStruct)
 	INT Result = 1;
 
 	if (!Prop)
-		return Result;	
+		return Result;
 
 	if (Prop->IsA(UStructProperty::StaticClass()) && Prop != ExcludeStruct)
 	{
@@ -2326,24 +2341,24 @@ INT UStructProperty::GetLinkAlignment()
 
 	INT Result = Struct->PropertiesAlign;
 	for (TFieldIterator<UProperty> It(Struct); It; ++It)
-		Result = Max(Result, GetPropAlignment(*It, this));	
+		Result = Max(Result, GetPropAlignment(*It, this));
 
 	return Result;
 }
 
-void UStructProperty::Link( FArchive& Ar, UProperty* Prev )
+void UStructProperty::Link(FArchive& Ar, UProperty* Prev)
 {
 	guard(UStructProperty::Link);
-	Super::Link( Ar, Prev );
-	Ar.Preload( Struct );
+	Super::Link(Ar, Prev);
+	Ar.Preload(Struct);
 
-	ElementSize   = Struct->PropertiesSize;
+	ElementSize = Struct->PropertiesSize;
 	LinkAlignment = GetLinkAlignment();
 	//appDebugMessagef(TEXT("Calculated struct alignment %s => %d"), GetName(), LinkAlignment);
 
 	Offset = Align(GetOuterUField()->GetPropertiesSize(), LinkAlignment);
 
-	if( Struct->ConstructorLink && !(PropertyFlags & CPF_Native) )
+	if (Struct->ConstructorLink && !(PropertyFlags & CPF_Native))
 		PropertyFlags |= CPF_NeedCtorLink;
 	unguardobj;
 }
@@ -2351,7 +2366,7 @@ UBOOL UStructProperty::Identical(const void* A, const void* B) const
 {
 	guardSlow(UStructProperty::Identical);
 	for (TFieldIterator<UProperty> It(Struct); It; ++It)
-		for (INT i = 0; i<It->ArrayDim; i++)
+		for (INT i = 0; i < It->ArrayDim; i++)
 			if (!It->Matches(A, B, i))
 				return 0;
 	return 1;
@@ -2366,7 +2381,7 @@ void UStructProperty::SerializeItem(FArchive& Ar, void* Value) const
 			&& (Struct->GetFName() != NAME_FontCharacter || Ar.Ver() >= VER_FIXED_FONTS_SERIALIZATION));
 
 	Ar.Preload(Struct);
-	
+
 	if (bUseBinarySerialization)
 		Struct->SerializeBin(Ar, (BYTE*)Value);
 	else
@@ -2439,6 +2454,12 @@ void UStructProperty::ExportTextItem(FString& ValueStr, BYTE* PropertyValue, BYT
 
 	unguardf((TEXT("(%ls/%ls)"), GetFullName(), Struct->GetFullName()));
 }
+
+static UBOOL IsPropertyValueSpecified(const TCHAR* Buffer)
+{
+	return Buffer && *Buffer && *Buffer != TCHAR(',') && *Buffer != TCHAR(')');
+}
+
 const TCHAR* UStructProperty::ImportText(const TCHAR* Buffer, BYTE* Data, INT PortFlags) const
 {
 	guard(UStructProperty::ImportText);
@@ -2530,33 +2551,99 @@ const TCHAR* UStructProperty::ImportText(const TCHAR* Buffer, BYTE* Data, INT Po
 						GWarn->Logf(NAME_ExecWarning, TEXT("%ls.ImportText: Array index out of bounds in: %ls"), GetPathName(), Buffer);
 						return NULL;
 					}
-					const TCHAR* Result = Property->ImportText(Buffer, pData + Property->Offset + Element*Property->ElementSize, PortFlags | PPF_Delimited);
-					if (Result == NULL)
+
+					/*if (Property->IsA(UArrayProperty::StaticClass()))
 					{
-						// Check if constant definition.
-						Start = Buffer;
-						EndB = Buffer;
-						while (appIsAlnum(*EndB))
-							EndB++;
-						if (Start != EndB)
+						if (Element == INDEX_NONE)
 						{
-							FString ConstName(Start, EndB);
-							UConst* CC = FindObject<UConst>(ANY_PACKAGE, *ConstName, 1);
-							if (CC)
+							// This case is triggered when ArrayIndex couldn't be pulled. But it's not an error.
+							// This is when importing without indices, for instance:
+							// MyVar=(MyArray=(MyVal1,MyVal2,MayVal3))
+							Element = 0;
+							SkipWhitespace(Buffer);
+							if (IsPropertyValueSpecified(Buffer))
 							{
-								Result = Property->ImportText(*CC->Value, pData + Property->Offset + Element * Property->ElementSize, PortFlags | PPF_Delimited);
-								if (Result)
-									Result = EndB;
+								const TCHAR* Result = Property->ImportText(Buffer, Data + Property->Offset + Element * Property->ElementSize, PortFlags | PPF_Delimited);
+								if (Result == NULL)
+								{
+									GWarn->Logf(NAME_ExecWarning, TEXT("%ls.ImportText failed in (%ls): %ls"), GetPathName(), Property->GetFullName(), Buffer);
+									return NULL;
+								}
+								else
+								{
+									Buffer = Result;
+								}
 							}
 						}
-
-						if (Result == NULL)
+						else
 						{
-							GWarn->Logf(NAME_ExecWarning, TEXT("%ls.ImportText failed in (%ls): %ls"), GetPathName(), Property->GetFullName(), Buffer);
-							return NULL;
+							SkipWhitespace(Buffer);
+							if (IsPropertyValueSpecified(Buffer))
+							{
+								const TCHAR* Result = Property->ImportText(Buffer, pData + Property->Offset + Element * Property->ElementSize, PortFlags | PPF_Delimited);
+								if (Result == NULL)
+								{
+									// Check if constant definition.
+									Start = Buffer;
+									EndB = Buffer;
+									while (appIsAlnum(*EndB))
+										EndB++;
+									if (Start != EndB)
+									{
+										FString ConstName(Start, EndB);
+										UConst* CC = FindObject<UConst>(ANY_PACKAGE, *ConstName, 1);
+										if (CC)
+										{
+											Result = Property->ImportText(*CC->Value, pData + Property->Offset + Element * Property->ElementSize, PortFlags | PPF_Delimited);
+											if (Result)
+												Result = EndB;
+										}
+									}
+
+									if (Result == NULL)
+									{
+										GWarn->Logf(NAME_ExecWarning, TEXT("%ls.ImportText failed in (%ls): %ls"), GetPathName(), Property->GetFullName(), Buffer);
+										return NULL;
+									}
+									else
+									{
+										Buffer = Result;
+									}
+								}
+							}
 						}
 					}
-					Buffer = Result;
+					else
+					{*/
+						if (Element == INDEX_NONE)
+						{
+							Element = 0;
+						}
+						SkipWhitespace(Buffer);
+
+						if (IsPropertyValueSpecified(Buffer))
+						{
+							const TCHAR* Result = Property->ImportText(Buffer, Data + Property->Offset + Element * Property->ElementSize, PortFlags | PPF_Delimited);
+							if (Result == NULL)
+							{
+								// this should be an error as the properties from the .ini / .int file are not correctly being read in and probably are affecting things in subtle ways
+								GWarn->Logf(NAME_ExecWarning, TEXT("%ls.ImportText failed in (%ls): %ls"), GetPathName(), Property->GetFullName(), Buffer);
+								return NULL;
+							}
+							else
+							{
+								Buffer = Result;
+							}
+						}
+					//}
+
+					if (Buffer == NULL)
+					{
+						// this should be an error as the properties from the .ini / .int file are not correctly being read in and probably are affecting things in subtle ways
+						warnf(NAME_Error, TEXT("ImportText (%s): Property import failed for %s in: %s"), *Struct->GetName(), *Property->GetName());
+						return NULL;
+					}
+
 					Parsed = 1;
 					break;
 				}
@@ -2570,10 +2657,10 @@ const TCHAR* UStructProperty::ImportText(const TCHAR* Buffer, BYTE* Data, INT Po
 				INT SubCount = 0;
 				while
 					(*Buffer
-					&&	*Buffer != 10
-					&& *Buffer != 13
-					&& (SubCount>0 || *Buffer != ')')
-					&& (SubCount>0 || *Buffer != ','))
+						&& *Buffer != 10
+						&& *Buffer != 13
+						&& (SubCount > 0 || *Buffer != ')')
+						&& (SubCount > 0 || *Buffer != ','))
 				{
 					if (*Buffer == 0x22)
 					{
@@ -2649,8 +2736,8 @@ void UStructProperty::DestroyValue(void* Dest) const
 {
 	guardSlow(UStructProperty::DestroyValue);
 	for (UProperty* P = Struct->ConstructorLink; P; P = P->ConstructorLinkNext)
-		for (INT i = 0; i<ArrayDim; i++)
-			P->DestroyValue((BYTE*)Dest + i*ElementSize + P->Offset);
+		for (INT i = 0; i < ArrayDim; i++)
+			P->DestroyValue((BYTE*)Dest + i * ElementSize + P->Offset);
 	unguardobjSlow;
 }
 void UStructProperty::CopyCompleteValue(void* Dest, void* Src, UObject* Obj) const
@@ -2658,13 +2745,13 @@ void UStructProperty::CopyCompleteValue(void* Dest, void* Src, UObject* Obj) con
 	guardSlow(UStructProperty::CopyCompleteValue);
 	if (PropertyFlags & CPF_NeedCtorLink)
 	{
-		for (INT i = 0; i<ArrayDim; i++)
+		for (INT i = 0; i < ArrayDim; i++)
 		{
 			for (TFieldIterator<UProperty> It(Struct); It; ++It)
-				It->CopyCompleteValue((BYTE*)Dest + i*ElementSize + It->Offset, (BYTE*)Src + i*ElementSize + It->Offset, Obj);
+				It->CopyCompleteValue((BYTE*)Dest + i * ElementSize + It->Offset, (BYTE*)Src + i * ElementSize + It->Offset, Obj);
 		}
 	}
-	else appMemcpy(Dest, Src, ElementSize*ArrayDim);
+	else appMemcpy(Dest, Src, ElementSize * ArrayDim);
 	unguardobjSlow;
 }
 void UStructProperty::InitializeValue(BYTE* Dest) const

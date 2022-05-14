@@ -619,7 +619,7 @@ static UClass* FactoryCreateText
 				UClass* ConflictingClass = FindObject<UClass>(ANY_PACKAGE, *ClassName, TRUE);
 				if (ConflictingClass != NULL)
 				{
-					Warn->Logf(NAME_Warning, TEXT("Duplicate class name: %s also exists in package %s"), *ClassName, *ConflictingClass->GetOutermost()->GetName());
+					Warn->Logf(NAME_Warning, TEXT("Duplicate class name: %s also exists in package %s"), *ClassName, ConflictingClass->GetOutermost()->GetName());
 				}
 			}
 
