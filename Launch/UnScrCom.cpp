@@ -10594,6 +10594,10 @@ void FScriptCompiler::CompileFunctionDeclaration( FToken& Token, UBOOL& NeedSemi
 				}
 				else ContextScope = StateScope;
 			}
+			else if (ContextScope && (FuncInfo.FunctionFlags & FUNC_Final) == 0)
+			{
+				ScriptErrorf(SCEL_Restricted, TEXT("Class based context functions must be final!"));
+			}
 			if (!ContextScope)
 			{
 				ScriptErrorf(SCEL_Restricted, TEXT("'Context(class.state.function)': Couldn't find class '%s'"), *ContextToken.Identifier);
@@ -10873,7 +10877,7 @@ void FScriptCompiler::CompileFunctionDeclaration( FToken& Token, UBOOL& NeedSemi
 	}
 	FuncInfo.FunctionReference   = TopFunction;
 	ClassData->AddFunction(FuncInfo);
-
+    
 	if (TopFunction->CustomScope && TopFunction->CustomScope->GetClass() == UFunction::StaticClass())
 	{
 		// Skip parameter list!
@@ -11138,63 +11142,66 @@ void FScriptCompiler::CompileFunctionDeclaration( FToken& Token, UBOOL& NeedSemi
 
 				// If the other function's name matches this one's, process it.
 				if
-					(	Function->GetFName()==TopNode->GetFName()
-					&&	*Function!=TopNode
-					&&	((Function->FunctionFlags ^ TopFunction->FunctionFlags) & (FUNC_Operator | FUNC_PreOperator))==0 )
+					(Function->GetFName() == TopNode->GetFName()
+						&& *Function != TopNode
+						&& ((Function->FunctionFlags ^ TopFunction->FunctionFlags) & (FUNC_Operator | FUNC_PreOperator)) == 0)
 				{
 					// Check precedence.
-					if( Function->OperPrecedence!=TopFunction->OperPrecedence && Function->NumParms==TopFunction->NumParms )
+					if (Function->OperPrecedence != TopFunction->OperPrecedence && Function->NumParms == TopFunction->NumParms)
 					{
 						ReturnToLocation(FuncNameRetry);
-						ScriptErrorf(SCEL_Restricted,  TEXT("Overloaded operator differs in precedence") );
+						ScriptErrorf(SCEL_Restricted, TEXT("Overloaded operator differs in precedence"));
 					}
 
-					// see if they both either have a return value or don't
-					if ((TopFunction->GetReturnProperty() != NULL) != (Function->GetReturnProperty() != NULL))
+					if (!(TopFunction->TempCompileFlags & TFFLAG_Stripped))
 					{
-						ReturnToLocation(FuncNameRetry);
-						ScriptErrorf(SCEL_Restricted,  TEXT("Redefinition of '%s %s' differs from original: return value mismatch"), NestName, *FuncInfo.Function.Identifier );
-					}
-					// See if all parameters match.
-					else if (TopFunction->NumParms!=Function->NumParms)
-					{
-						ReturnToLocation(FuncNameRetry);
-						ScriptErrorf(SCEL_Restricted,  TEXT("Redefinition of '%s %s' differs from original; different number of parameters"), NestName, *FuncInfo.Function.Identifier );
-					}
+						// see if they both either have a return value or don't
+						if ((TopFunction->GetReturnProperty() != NULL) != (Function->GetReturnProperty() != NULL))
+						{
+							ReturnToLocation(FuncNameRetry);
+							ScriptErrorf(SCEL_Restricted, TEXT("Redefinition of '%s %s' differs from original: return value mismatch"), NestName, *FuncInfo.Function.Identifier);
+						}
+						// See if all parameters match.
+						else if (TopFunction->NumParms != Function->NumParms)
+						{
+							ReturnToLocation(FuncNameRetry);
+							ScriptErrorf(SCEL_Restricted, TEXT("Redefinition of '%s %s' differs from original; different number of parameters"), NestName, *FuncInfo.Function.Identifier);
+						}
 
-					// Check all individual parameters.
-					INT Count=0;
-					for( TFieldIterator<UProperty> CurrentFuncParam(TopFunction),SuperFuncParam(*Function); Count<Function->NumParms; ++CurrentFuncParam,++SuperFuncParam,++Count )
-					{
-						if( !FPropertyBase(*CurrentFuncParam).MatchesType(FPropertyBase(*SuperFuncParam), 1) )
+						// Check all individual parameters.
+						INT Count = 0;
+						for (TFieldIterator<UProperty> CurrentFuncParam(TopFunction), SuperFuncParam(*Function); Count < Function->NumParms; ++CurrentFuncParam, ++SuperFuncParam, ++Count)
 						{
-							if( CurrentFuncParam->PropertyFlags & CPF_ReturnParm )
+							if (!FPropertyBase(*CurrentFuncParam).MatchesType(FPropertyBase(*SuperFuncParam), 1))
+							{
+								if (CurrentFuncParam->PropertyFlags & CPF_ReturnParm)
+								{
+									ReturnToLocation(FuncNameRetry);
+									ScriptErrorf(SCEL_Restricted, TEXT("Redefinition of %s %s differs only by return type"), NestName, *FuncInfo.Function.Identifier);
+								}
+								else if (!(FuncInfo.FunctionFlags & FUNC_Operator))
+								{
+									ReturnToLocation(FuncNameRetry);
+									ScriptErrorf(SCEL_Restricted, TEXT("Redefinition of '%s %s' differs from original"), NestName, *FuncInfo.Function.Identifier);
+								}
+								break;
+							}
+							else if (CurrentFuncParam->HasAnyPropertyFlags(CPF_OutParm) != SuperFuncParam->HasAnyPropertyFlags(CPF_OutParm))
 							{
 								ReturnToLocation(FuncNameRetry);
-								ScriptErrorf(SCEL_Restricted,  TEXT("Redefinition of %s %s differs only by return type"), NestName, *FuncInfo.Function.Identifier );
+								ScriptErrorf(SCEL_Restricted, TEXT("Redefinition of '%s %s' differs from original - 'out' mismatch on parameter %i"), NestName, *FuncInfo.Function.Identifier, Count + 1);
 							}
-							else if( !(FuncInfo.FunctionFlags & FUNC_Operator) )
+							else if (!CurrentFuncParam->HasAnyPropertyFlags(CPF_OptionalParm) && SuperFuncParam->HasAnyPropertyFlags(CPF_OptionalParm))
 							{
+								// this is only an issue if the parent class defines the property as optional and the child class doesn't...
 								ReturnToLocation(FuncNameRetry);
-								ScriptErrorf(SCEL_Restricted,  TEXT("Redefinition of '%s %s' differs from original"), NestName, *FuncInfo.Function.Identifier );
+								ScriptErrorf(SCEL_Restricted, TEXT("Redefinition of '%s %s' differs from original - 'optional' mismatch on parameter %i"), NestName, *FuncInfo.Function.Identifier, Count + 1);
 							}
-							break;
 						}
-						else if ( CurrentFuncParam->HasAnyPropertyFlags(CPF_OutParm) != SuperFuncParam->HasAnyPropertyFlags(CPF_OutParm) )
+						if (Count < TopFunction->NumParms)
 						{
-							ReturnToLocation(FuncNameRetry);
-							ScriptErrorf(SCEL_Restricted, TEXT("Redefinition of '%s %s' differs from original - 'out' mismatch on parameter %i"), NestName, *FuncInfo.Function.Identifier, Count + 1);
+							continue;
 						}
-						else if ( !CurrentFuncParam->HasAnyPropertyFlags(CPF_OptionalParm) && SuperFuncParam->HasAnyPropertyFlags(CPF_OptionalParm) )
-						{
-							// this is only an issue if the parent class defines the property as optional and the child class doesn't...
-							ReturnToLocation(FuncNameRetry);
-							ScriptErrorf(SCEL_Restricted, TEXT("Redefinition of '%s %s' differs from original - 'optional' mismatch on parameter %i"), NestName, *FuncInfo.Function.Identifier, Count + 1);
-						}
-					}
-					if( Count<TopFunction->NumParms )
-					{
-						continue;
 					}
 
 					// Function flags to copy from parent.

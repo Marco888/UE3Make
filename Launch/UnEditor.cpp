@@ -216,7 +216,7 @@ void UEditor::ObfuscatePck(UPackage* P)
 			for (TFieldIterator<UProperty> PIt(F, FALSE); PIt; ++PIt)
 				PIt->Rename(GetObscNameUnique(PIt->GetOuter()));
 			F->FunctionFlags |= FUNC_Private;
-			if (F->HasAnyFunctionFlags(FUNC_Final) && !(F->TempCompileFlags & TFFLAG_Stripped))
+			if (F->HasAnyFunctionFlags(FUNC_Final) && !(F->HasAnyFunctionFlags(FUNC_Exec)) && !(F->TempCompileFlags & TFFLAG_Stripped))
 			{
 				F->Rename(GetObscNameUnique(F->GetOuter()));
 				F->FriendlyName = F->GetFName();

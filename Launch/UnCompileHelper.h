@@ -1407,39 +1407,6 @@ class FFunctionData
 	/** function local property data */
 	FPropertyData	LocalData;
 
-	/**
-	 * Adds a new parameter token
-	 * 
-	 * @param	PropertyToken	token that should be added to the list
-	 */
-	void AddParameter( const FToken& PropertyToken )
-	{
-		check(PropertyToken.TokenProperty);
-		ParameterData.Set(PropertyToken.TokenProperty, PropertyToken);
-	}
-
-	/**
-	 * Adds a new local property token
-	 * 
-	 * @param	PropertyToken	token that should be added to the list
-	 */
-	void AddLocalProperty( const FToken& PropertyToken )
-	{
-		check(PropertyToken.TokenProperty);
-		LocalData.Set(PropertyToken.TokenProperty, PropertyToken);
-	}
-
-	/**
-	 * Sets the value of the return token for this function
-	 * 
-	 * @param	PropertyToken	token that should be added
-	 */
-	void SetReturnData( const FToken& PropertyToken )
-	{
-		check(PropertyToken.TokenProperty);
-		ReturnTypeData.Token = PropertyToken;
-	}
-
 public:
 	/** Constructors */
 	FFunctionData() {}
@@ -1540,6 +1507,39 @@ public:
 	void ClearFunctionExportFlags( DWORD ClearFlags )
 	{
 		FunctionData.FunctionExportFlags &= ~ClearFlags;
+	}
+
+	/**
+	 * Adds a new parameter token
+	 *
+	 * @param	PropertyToken	token that should be added to the list
+	 */
+	void AddParameter(const FToken& PropertyToken)
+	{
+		check(PropertyToken.TokenProperty);
+		ParameterData.Set(PropertyToken.TokenProperty, PropertyToken);
+	}
+
+	/**
+	 * Adds a new local property token
+	 *
+	 * @param	PropertyToken	token that should be added to the list
+	 */
+	void AddLocalProperty(const FToken& PropertyToken)
+	{
+		check(PropertyToken.TokenProperty);
+		LocalData.Set(PropertyToken.TokenProperty, PropertyToken);
+	}
+
+	/**
+	 * Sets the value of the return token for this function
+	 *
+	 * @param	PropertyToken	token that should be added
+	 */
+	void SetReturnData(const FToken& PropertyToken)
+	{
+		check(PropertyToken.TokenProperty);
+		ReturnTypeData.Token = PropertyToken;
 	}
 };
 

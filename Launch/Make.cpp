@@ -2,6 +2,7 @@
 #include "UnEditor.h"
 #include "UnScrPrecom.h"
 #include "UnLinker.h"
+#include "UnCompileHelper.h"
 
 inline UBOOL appIsLinebreak(TCHAR c)
 {
@@ -893,6 +894,57 @@ void MakeMain()
 		{
 			FMacroProcessingFilter DummyMacroFilter(P->GetName(), TEXT("NULL"));
 			BuiltPckList.AddItem(P->GetFName());
+
+			if (!GScriptHelper)
+				GScriptHelper = new FCompilerMetadataManager;
+
+			for (FPackageObjectIterator It(P); It; ++It)
+			{
+				UFunction* OuterFunc = Cast<UFunction>(*It);
+				if (OuterFunc != NULL)
+				{
+					UClass* OuterClass = Cast<UClass>(OuterFunc->GetOuter());
+					if (OuterClass != NULL)
+					{
+						FClassMetaData* ClassData = GScriptHelper->AddClassData(OuterClass);
+
+						FFuncInfo FuncInfo;
+						FuncInfo.FunctionFlags = OuterFunc->FunctionFlags;
+						FuncInfo.ExpectParms = OuterFunc->NumParms;
+						FuncInfo.Precedence = OuterFunc->OperPrecedence;
+						FuncInfo.FunctionReference = OuterFunc;
+						FuncInfo.FunctionScope = OuterFunc->CustomScope;
+						FToken TokenInfo;
+						TokenInfo.SetTokenFunction(ClassData->AddFunction(FuncInfo));
+					}
+				}
+				else if (It->GetName() == TEXT("ReturnValue"))
+				{
+					UFunction* OuterFunc = Cast<UFunction>(It->GetOuter());
+					if (OuterFunc != NULL)
+					{
+						UClass* OuterClass = Cast<UClass>(OuterFunc->GetOuter());
+						if (OuterClass != NULL)
+						{
+							FClassMetaData* ClassData = GScriptHelper->FindClassData(OuterClass);
+							if (ClassData)
+							{
+								FFunctionData* FunctionData = ClassData->FindFunctionData(OuterFunc);
+								if (FunctionData)
+								{
+									UProperty* TokenProp = Cast<UProperty>(*It);
+									if (TokenProp != NULL)
+									{
+										FToken TokenInfo;
+										TokenInfo.TokenProperty = TokenProp;
+										FunctionData->SetReturnData(TokenInfo);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
 		}
 	}
 	unguard;

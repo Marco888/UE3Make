@@ -3664,8 +3664,6 @@ void UObject::UnhashObject( INT OuterIndex )
 			Removed++;
 		}
 	}
-	check(Removed!=0);
-	check(Removed==1);
 
 	unguard;
 }
