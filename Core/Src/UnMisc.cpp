@@ -2374,18 +2374,17 @@ CORE_API void appInit( const TCHAR* InPackage, const TCHAR* InCmdLine, FMalloc* 
 	debugf( NAME_Init, TEXT("Character set: %ls"), sizeof(TCHAR)==1 ? TEXT("ANSI") : TEXT("Unicode") );
 
 	// Ini.
-    const TCHAR* IniName = *InPackage + TEXT(".ini");
-	appStrcpy(GIni, IniName);
+	appSprintf(GIni, TEXT("%s.ini"), InPackage);
 
 	if( GFileManager->FileSize(GIni)<0 && RequireConfig )
 	{
 		// Create Package.ini from default.ini.
-		appErrorf(TEXT("Missing " + *IniName));
+		appErrorf(TEXT("Missing %s"), GIni);
 	}
 
  	// Init config.
 	GConfig = ConfigFactory();
-	GConfig->Init( GIni, IniName, RequireConfig );
+	GConfig->Init( GIni, InPackage, RequireConfig );
 
 	// Safe mode.
 	if( ParseParam(appCmdLine(),TEXT("safe")) || appStrfind(appCmdLine(),TEXT("READINI=")) )

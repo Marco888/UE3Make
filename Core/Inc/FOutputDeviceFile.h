@@ -38,7 +38,11 @@ public:
 				if( !LogAr && !Dead )
 				{
 					// Open log file.
-					LogAr = GFileManager->CreateFileWriter( TEXT("UE3Make.log"), FILEWRITE_AllowRead|FILEWRITE_Unbuffered|(Opened?FILEWRITE_Append:0));
+                    #if __UE3Make__
+                    LogAr = GFileManager->CreateFileWriter( TEXT("UE3Make.log"), FILEWRITE_AllowRead|FILEWRITE_Unbuffered|(Opened?FILEWRITE_Append:0));
+                    #else
+                    LogAr = GFileManager->CreateFileWriter( TEXT("UDKCompress.log"), FILEWRITE_AllowRead|FILEWRITE_Unbuffered|(Opened?FILEWRITE_Append:0));
+                    #endif
 					if( LogAr )
 					{
 						Opened = 1;
