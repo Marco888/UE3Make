@@ -2374,17 +2374,18 @@ CORE_API void appInit( const TCHAR* InPackage, const TCHAR* InCmdLine, FMalloc* 
 	debugf( NAME_Init, TEXT("Character set: %ls"), sizeof(TCHAR)==1 ? TEXT("ANSI") : TEXT("Unicode") );
 
 	// Ini.
-	appStrcpy(GIni, TEXT("UE3Make.ini"));
+    const TCHAR* IniName = *InPackage + TEXT(".ini");
+	appStrcpy(GIni, IniName);
 
 	if( GFileManager->FileSize(GIni)<0 && RequireConfig )
 	{
 		// Create Package.ini from default.ini.
-		appErrorf(TEXT("Missing UE3Make.ini"));
+		appErrorf(TEXT("Missing " + *IniName));
 	}
 
  	// Init config.
 	GConfig = ConfigFactory();
-	GConfig->Init( GIni, TEXT("UE3Make.ini"), RequireConfig );
+	GConfig->Init( GIni, IniName, RequireConfig );
 
 	// Safe mode.
 	if( ParseParam(appCmdLine(),TEXT("safe")) || appStrfind(appCmdLine(),TEXT("READINI=")) )
@@ -3188,6 +3189,38 @@ UBOOL UObject::ParsePropertyValue(void* Result, const TCHAR** Str, BYTE bIntValu
 	else *(FLOAT*)Result = (FLOAT)Parse.ResultValue;
 	return 1;
 	unguardobj;
+}
+
+/** 
+ * Removes the executable name from a commandline, denoted by parentheses.
+ */
+const TCHAR* RemoveExeName(const TCHAR* CmdLine)
+{
+    guard(RemoveExeName);
+	// Skip over executable that is in the commandline
+	if( *CmdLine=='\"' )
+	{
+		CmdLine++;
+		while( *CmdLine && *CmdLine!='\"' )
+		{
+			CmdLine++;
+		}
+		if( *CmdLine )
+		{
+			CmdLine++;
+		}
+	}
+	while( *CmdLine && *CmdLine!=' ' )
+	{
+		CmdLine++;
+	}
+	// skip over any spaces at the start, which Vista likes to toss in multiple
+	while (*CmdLine == ' ')
+	{
+		CmdLine++;
+	}
+	return CmdLine;
+    unguard;
 }
 
 /*-----------------------------------------------------------------------------

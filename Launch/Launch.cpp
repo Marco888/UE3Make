@@ -1,6 +1,8 @@
 // Launch.cpp : Defines the entry point for the console application.
 //
 
+#define __UE3Make__ 1
+
 // Core and Engine
 #include "UnEditor.h"
 

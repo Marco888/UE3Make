@@ -5,6 +5,7 @@
 	Global variables.
 -----------------------------------------------------------------------------*/
 
+#define __UE3Make__ 0
 #include "Core.h"
 #include "FCodec.h"
 
@@ -54,11 +55,10 @@ FMallocAnsi Malloc;
 FFileManagerAnsi FileManager;
 #endif
 
-void CompressFile(TCHAR* File)
+void CompressFile(FString FileName)
 {
     guard(CompressFile);
-    FString FileName = FString(File);
-    
+
     GWarn->Logf(NAME_Heading, TEXT("Compressing %s"), *FileName);
 
     FString CompressFile = FileName + TEXT(".uz2");
@@ -79,7 +79,7 @@ void CompressFile(TCHAR* File)
     }
 
     INT iSig = 0x0000162E;
-    FString FSig = TEXT("bz2");
+    FString FSig = appFileBaseName(*FileName);
     *UFileAr << iSig;
     *UFileAr << FSig;
 
@@ -100,10 +100,9 @@ void CompressFile(TCHAR* File)
     unguard;
 }
 
-void DecompressFile(TCHAR* File)
+void DecompressFile(FString FileName)
 {
     guard(DecompressFile);
-    FString FileName = FString(File);
     
     GWarn->Logf(NAME_Heading, TEXT("Decompressing %s"), *FileName);
 
@@ -140,9 +139,8 @@ void DecompressFile(TCHAR* File)
 
     delete CFileAr;
     delete UFileAr;
-    
-    INT UncompressedFileSize = GFileManager->FileSize(*UncompressFile);
-    GWarn->Logf(NAME_Heading, TEXT("Decompressed %s -> %s (%d%%)\n\n"), *FileName, *UncompressFile, static_cast<int>((1.f - (static_cast<float>(UncompressedFileSize) / static_cast<float>(FileSize))) * 100));
+
+    GWarn->Logf(NAME_Heading, TEXT("Decompressed %s -> %s\n\n"), *FileName, *UncompressFile);
     
     unguard;
 }
@@ -154,9 +152,9 @@ void CompressMain(const TArray<TCHAR*> CmdLine)
 	{
         const FString FileExt = FString(appFExt(CmdLine(i)));
         if( FileExt != TEXT("uz2") )
-            CompressFile(CmdLine(i));
+            CompressFile(FString(CmdLine(i)));
         else if( FileExt == TEXT("uz2") )
-            DecompressFile(CmdLine(i));
+            DecompressFile(FString(CmdLine(i)));
 	}
 	unguard;
 }
@@ -188,7 +186,7 @@ int main(int argc, char* argv[])
             TArray<TCHAR*> CmdLine;
 
             // Init engine core.
-            appInit(TEXT("UDKCompress"), GetCommandLine(), &Malloc, &Log, &Error, &Warn, &FileManager, FConfigCacheIni::Factory, 1);
+            appInit(TEXT("UDKCompress"), GetCommandLine(), &Malloc, &Log, &Error, &Warn, &FileManager, FConfigCacheIni::Factory, 0);
             
             for( INT i = 1; i < argc; i++ )
                 CmdLine.AddItem(ANSI_TO_TCHAR(argv[i]));

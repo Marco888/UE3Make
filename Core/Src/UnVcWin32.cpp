@@ -851,7 +851,11 @@ const TCHAR* appUserName()
 const TCHAR* appPackage()
 {
 	guard(appPackage);
+    #if __UE3Make__
 	return TEXT("UE3Make");
+    #else
+    return TEXT("UDKCompress");
+    #endif
 	unguard;
 }
 
@@ -859,7 +863,11 @@ const TCHAR* appPackage()
 CORE_API const TCHAR* appPackageExe()
 {
 	guard(appPackageExe);
+    #if __UE3Make__
 	return TEXT("UE3Make");
+    #else
+    return TEXT("UDKCompress");
+    #endif
 	unguard;
 }
 
